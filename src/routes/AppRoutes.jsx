@@ -3,6 +3,8 @@ import Login from '../pages/Login';
 import MainLayout from '../layouts/mainLayout';
 import Home from '../pages/Home';
 import SideBar from '../components/SideBar';
+import CustomerList from '../pages/CustomerList';
+import Settings from '../pages/Settings';
 const AppRoutes = () => (
   <Router>
     <Routes>
@@ -10,6 +12,8 @@ const AppRoutes = () => (
       <Route path="/main" element={<MainLayout/>}>
           <Route path='home' element={<Home/>}/>
           <Route path='sidebar' element={<SideBar/>}/>
+          <Route path='customerList' element={<CustomerList/>}/>
+          <Route path='settings' element={<Settings/>}/>
       </Route>
     </Routes>
   </Router>

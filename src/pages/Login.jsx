@@ -6,9 +6,14 @@ import LoginForm from '../components/LoginForm';
 const Login = () => (
 
 
-  <div className="flex flex-col justify-center items-center  h-screen bg-gradient-to-r from-fuchsia-500 to-cyan-500">
-    <LoginForm/>
+  <div className="
+  flex flex-col justify-center items-center 
+  h-screen 
+  bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800
+">
+    <LoginForm />
   </div>
+
 
 );
 

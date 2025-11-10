@@ -1,103 +1,96 @@
 import React from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faBook, faUser} from '@fortawesome/free-solid-svg-icons';
+import {faUser} from '@fortawesome/free-solid-svg-icons';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+} from 'recharts';
 
-const subjects = [
-  {
-    name: 'DATA STRUCTURES',
-    code: '23MCA1CC1',
-    total: 60,
-    present: 40,
-    absent: 20,
-    semester: 'Sem 1',
-    color: 'bg-violet-600',
-  },
-  {
-    name: 'OPERATING SYSTEM',
-    code: '23MCA1CC2',
-    total: 70,
-    present: 48,
-    absent: 22,
-    semester: 'Sem 1',
-    color: 'bg-blue-500',
-  },
-  {
-    name: 'R PROGRAMMING',
-    code: '23MCA1CC3',
-    total: 65,
-    present: 50,
-    absent: 15,
-    semester: 'Sem 1',
-    color: 'bg-violet-600',
-  },
-  {
-    name: 'R PROGRAMMING',
-    code: '23MCA1CC3',
-    total: 65,
-    present: 50,
-    absent: 15,
-    semester: 'Sem 1',
-    color: 'bg-violet-600',
-  },
-  {
-    name: 'R PROGRAMMING',
-    code: '23MCA1CC3',
-    total: 65,
-    present: 50,
-    absent: 15,
-    semester: 'Sem 1',
-    color: 'bg-violet-600',
-  },
+const customerData = {
+  total: 1000,
+  paid: 600,
+  unpaid: 250,
+  inactive: 150,
+};
+
+const barData = [
+  {name: 'Paid', count: customerData.paid, total: customerData.total},
+  {name: 'Unpaid', count: customerData.unpaid, total: customerData.total},
+  {name: 'Inactive', count: customerData.inactive, total: customerData.total},
 ];
+
+const pieData = [
+  {name: 'Paid', value: customerData.paid},
+  {name: 'Unpaid', value: customerData.unpaid},
+  {name: 'Inactive', value: customerData.inactive},
+];
+
+const COLORS = ['#4f46e5', '#f59e0b', '#9ca3af']; // blue, yellow, gray colors
 
 function Home() {
   return (
-    <div className="p-4  bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gray-100 min-h-screen">
       {/* Header */}
-      <div className="flex items-center gap-3 p-3 bg-white rounded-lg shadow mb-4">
-        <FontAwesomeIcon icon={faUser} className="text-blue-500 text-xl" />
-        <span className="text-blue-600 font-semibold">
-          Hello Abdul Rasak
-        </span>
+      <div className="flex items-center gap-3 p-4 bg-white rounded-lg shadow mb-8">
+        <FontAwesomeIcon icon={faUser} className="text-blue-500 text-2xl" />
+        <span className="text-blue-600 font-semibold text-lg">Hello Abdul Rasak</span>
       </div>
-      <div className='lg:flex  lg:flex-row lg:justify-between'>
-      {subjects.map((subject, index) => (
-        <div
-          key={index}
-          className={`rounded-xl p-3 mb-5 text-white shadow-lg ${subject.color}`}
-        >
-          <div className="flex justify-between items-center mb-2">
-            <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faBook} className="text-white" />
-              <span className="font-bold">{subject.name}</span>
-            </div>
-            <span className="bg-white text-blue-500 text-xs px-2 py-1 rounded-full font-semibold">
-              {subject.semester}
-            </span>
-          </div>
 
-          <div className="bg-white text-black rounded-xl p-3">
-            <p className="text-sm mb-2">
-              SUBJECT CODE : <span className="font-semibold">{subject.code}</span>
-            </p>
-            <div className="flex justify-around text-center font-semibold text-sm">
-              <div>
-                <p className="text-gray-700">TOTAL</p>
-                <p className="text-red-500">{subject.total}</p>
-              </div>
-              <div>
-                <p className="text-gray-700">PRESENT</p>
-                <p className="text-green-500">{subject.present}</p>
-              </div>
-              <div>
-                <p className="text-gray-700">ABSENT</p>
-                <p className="text-purple-600">{subject.absent}</p>
-              </div>
-            </div>
-          </div>
+      {/* Responsive Charts Container */}
+      <div className="lg:flex lg:justify-between gap-10">
+        {/* Bar Chart */}
+        <div className="bg-white rounded-xl p-6 shadow-lg w-full lg:w-1/2" style={{minHeight: 300}}>
+          <h2 className="text-xl font-semibold mb-5 text-gray-700 text-center">Customer Status Bar Chart</h2>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={barData} margin={{top: 20, right: 30, left: 20, bottom: 5}}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="count" fill="#4f46e5" name="Count" />
+              <Bar dataKey="total" fill="#e0e7ff" name="Total" />
+            </BarChart>
+          </ResponsiveContainer>
+          <p className="text-center mt-3 text-gray-600 text-sm italic">
+            Bars represent number of customers paid, unpaid, and inactive out of total customers.
+          </p>
         </div>
-      ))}
 
+        {/* Pie Chart */}
+        <div className="bg-white rounded-xl p-6 shadow-lg w-full lg:w-1/2" style={{minHeight: 300}}>
+          <h2 className="text-xl font-semibold mb-5 text-gray-700 text-center">Customer Percentage Distribution</h2>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie
+                data={pieData}
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
+                dataKey="value"
+              >
+                {pieData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+          <p className="text-center mt-3 text-gray-600 text-sm italic">
+            Pie chart shows percentage distribution of paid, unpaid, and inactive customers.
+          </p>
+        </div>
       </div>
     </div>
   );
