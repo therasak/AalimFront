@@ -5,13 +5,7 @@ const customers = [
   {id: 1, cardNumber: "12345", boxNumber: "A1", name: "John Doe", company: "Company A", phone: "9876543210"},
   {id: 2, cardNumber: "67890", boxNumber: "B2", name: "Jane Smith", company: "Company B", phone: "8765432109"},
   {id: 3, cardNumber: "54321", boxNumber: "C3", name: "Michael Johnson", company: "Company C", phone: "7654321098"},
-  {id: 5, cardNumber: "524", boxNumber: "121", name: "Mydeen", company: "Company C", phone: "7654321098"},
-  {id: 2, cardNumber: "67890", boxNumber: "B2", name: "Jane Smith", company: "Company B", phone: "8765432109"},
-  {id: 3, cardNumber: "54321", boxNumber: "5432154321", name: "Michael Johnson", company: "Company C", phone: "7654321098"},
-  {id: 5, cardNumber: "524", boxNumber: "121", name: "Mydeen", company: "Company C", phone: "7654321098"},
-  {id: 2, cardNumber: "67890", boxNumber: "B2", name: "Jane Smith", company: "Company B", phone: "8765432109"},
-  {id: 3, cardNumber: "54321", boxNumber: "C3", name: "Michael Johnson", company: "Company C", phone: "7654321098"},
-  {id: 5, cardNumber: "524", boxNumber: "121", name: "Mydeen", company: "Company C", phone: "7654321098"},
+  
 ];
 
 function CustomerList() {
