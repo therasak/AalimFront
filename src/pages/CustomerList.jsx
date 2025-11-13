@@ -1,39 +1,91 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {X} from "lucide-react";
+import axios from "axios";
 
-const customers = [
-  {id: 1, cardNumber: "12345", boxNumber: "A1", name: "John Doe", company: "Company A", phone: "9876543210"},
-  {id: 2, cardNumber: "67890", boxNumber: "B2", name: "Jane Smith", company: "Company B", phone: "8765432109"},
-  {id: 3, cardNumber: "54321", boxNumber: "C3", name: "Michael Johnson", company: "Company C", phone: "7654321098"},
-  
-];
+// const customers = [
+//   {id: 1, cardNumber: "12345", boxNumber: "A1", name: "John Doe", company: "Company A", phone: "9876543210"},
+//   {id: 2, cardNumber: "67890", boxNumber: "B2", name: "Jane Smith", company: "Company B", phone: "8765432109"},
+//   {id: 3, cardNumber: "54321", boxNumber: "C3", name: "Michael Johnson", company: "Company C", phone: "7654321098"},
+
+// ];
 
 function CustomerList() {
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [amount, setAmount] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [customers, setCustomers] = useState([]);
+
+
+
+  // --------------------------- Fetch customers from backend 
+  useEffect(() => {
+    // Fetch customers from API
+    const fetchCustomers = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/users/custemersList`);
+
+        setCustomers(response.data.customers);
+      } catch (error) {
+        console.log("Error fetching customers:", error);
+      }
+    };
+
+    fetchCustomers();
+  }, [apiUrl]);
+
+
+  // ------------------------------------------------------------
 
   const handleRowClick = (customer) => {
     setSelectedCustomer(customer);
     setAmount("");
   };
 
+  // ----------- Handle store amount data -----------
+
+  // const handleChangeAmount = (e) => {
+  //   setAmount(...amount, [e.target.name]: e.target.value);
+  // };
+
+  // Close Modal
+
   const closeModal = () => setSelectedCustomer(null);
 
-  const handlePaid = () => {
-    alert(`Payment recorded for ${selectedCustomer.name} — Amount: ₹${amount}`);
+  const handlePaid = async () => {
+    try {
+      const response = await axios.post(`${apiUrl}/api/users/paymentEntry`, {
+        boxNumber: selectedCustomer.boxNumber,
+        cardNumber: selectedCustomer.cardNumber,
+        amount: amount
+      });
+      console.log(response.data)
+      if (response.status === 200) {
+        alert("Payment recorded successfully!");
+        window.location.reload();
+      }
+    }
+    catch (error) {
+      console.log("Error saving payment:", error);
+    }
     closeModal();
   };
 
+  // -------- Filter customers based on search term ----------
+
   const filteredCustomers = customers.filter((customer) => {
     const term = searchTerm.toLowerCase();
+
     return (
-      customer.name.toLowerCase().includes(term) ||
-      customer.cardNumber.toLowerCase().includes(term) ||
-      customer.boxNumber.toLowerCase().includes(term)
+      customer.customerName?.toLowerCase().includes(term) ||
+      customer.cardNumber?.toLowerCase().includes(term) ||
+      customer.boxNumber?.toLowerCase().includes(term)
     );
   });
 
+
+  // ------------------------------------------------------------
   return (
     <div className="w-full overflow-x-hidden p-4">
       {/* Search box */}
@@ -62,15 +114,15 @@ function CustomerList() {
             {filteredCustomers.length > 0 ? (
               filteredCustomers.map((customer, index) => (
                 <tr
-                  key={customer.id}
-                  onClick={() => handleRowClick(customer)}
+                  key={customer.cardNumber}
+                  onClick={() => setSelectedCustomer(customer)}
                   className={`cursor-pointer transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-100"
                     } hover:bg-blue-50`}
                 >
                   <td className="px-4 py-2 text-sm text-gray-700">{index + 1}</td>
                   <td className="px-4 py-2 text-sm text-gray-700">{customer.cardNumber}</td>
                   <td className="px-4 py-2 text-sm text-gray-700">{customer.boxNumber}</td>
-                  <td className="px-4 py-2 text-sm text-gray-700 font-medium">{customer.name}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700 font-medium">{customer.customerName}</td>
                 </tr>
               ))
             ) : (
@@ -85,75 +137,77 @@ function CustomerList() {
       </div>
 
       {/* Modal */}
-      {selectedCustomer && (
-        <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
-          onClick={closeModal}
-        >
+      {
+        selectedCustomer && (
           <div
-            className="bg-white rounded-2xl shadow-2xl p-6 w-11/12 md:w-1/3 relative animate-fadeIn"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
+            onClick={() => setSelectedCustomer(null)}
           >
-            {/* Close Button */}
-            <button
-              onClick={closeModal}
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition"
+            <div
+              className="bg-white rounded-2xl shadow-2xl p-6 w-11/12 md:w-1/3 relative animate-fadeIn"
+              onClick={(e) => e.stopPropagation()}
             >
-              <X size={20} />
-            </button>
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedCustomer(null)}
+                className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition"
+              >
+                <X size={20} />
+              </button>
 
-            {/* Header */}
-            <h2 className="text-center text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
-              Customer Details
-            </h2>
+              {/* Header */}
+              <h2 className="text-center text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
+                Customer Details
+              </h2>
 
-            {/* Info Section */}
-            <div className="space-y-3 text-gray-700 bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <div className="flex justify-between">
-                <span className="font-medium">Name:</span>
-                <span>{selectedCustomer.name}</span>
+              {/* Info Section */}
+              <div className="space-y-3 text-gray-700 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div className="flex justify-between">
+                  <span className="font-medium">Name:</span>
+                  <span>{selectedCustomer.customerName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Card No:</span>
+                  <span>{selectedCustomer.cardNumber}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Box No:</span>
+                  <span>{selectedCustomer.boxNumber}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Phone:</span>
+                  <span>{selectedCustomer.phoneNumber}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Company:</span>
+                  <span>{selectedCustomer.company}</span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Card No:</span>
-                <span>{selectedCustomer.cardNumber}</span>
+
+              {/* Amount Input */}
+              <div className="mt-5">
+                <label className="block text-gray-700 font-medium mb-1">Amount (₹)</label>
+                <input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="Enter amount"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                />
               </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Box No:</span>
-                <span>{selectedCustomer.boxNumber}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Phone:</span>
-                <span>{selectedCustomer.phone}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Company:</span>
-                <span>{selectedCustomer.company}</span>
-              </div>
+
+              {/* Action Button */}
+              <button
+                onClick={handlePaid}
+                className="mt-6 w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2.5 rounded-xl transition-all shadow-md"
+              >
+                💰 Mark as Paid
+              </button>
             </div>
-
-            {/* Amount Input */}
-            <div className="mt-5">
-              <label className="block text-gray-700 font-medium mb-1">Amount (₹)</label>
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="Enter amount"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              />
-            </div>
-
-            {/* Action Button */}
-            <button
-              onClick={handlePaid}
-              className="mt-6 w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2.5 rounded-xl transition-all shadow-md"
-            >
-              💰 Mark as Paid
-            </button>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }
 

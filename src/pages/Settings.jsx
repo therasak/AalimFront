@@ -1,11 +1,38 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
+import axios from "axios";
 import {X, Upload, Trash2, Calendar, FileDown} from "lucide-react";
+import * as XLSX from "xlsx";
 
 function Settings() {
+    const apiUrl = import.meta.env.VITE_API_URL;
     const [openPopup, setOpenPopup] = useState(null);
     const [selectedMonth, setSelectedMonth] = useState("");
+    const [yearmonths, setYearmonths] = useState();
+    const [currentMonth, setCurrentMonth] = useState("");
+    const [selectedFile, setSelectedFile] = useState(null);
 
     const closePopup = () => setOpenPopup(null);
+
+    useEffect(() => {
+        const fetchMonths = async () => {
+            try {
+                const response = await axios.get(`${apiUrl}/api/users/getMonths`);
+                setYearmonths(response.data.months);
+                // ✅ Set currentMonth and selectedMonth to the active month
+                const current = response.data.currentMonth?.month || "";
+                setCurrentMonth(current);
+                setSelectedMonth(current);
+            } catch (e) {
+                console.log("Error", e);
+            }
+        };
+
+        fetchMonths();
+    }, []);
+
+    // console.log(apiUrl)
+
+
 
     const Popup = ({title, children}) => (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 transition-all">
@@ -24,24 +51,17 @@ function Settings() {
         </div>
     );
 
-    const months = [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-    ];
-
-    const handleSaveMonth = () => {
+    /// ---------------------------------------------
+    const handleSaveMonth = async () => {
         if (!selectedMonth) return alert("Please select a month first!");
         alert(`Month saved: ${selectedMonth}`);
+        try {
+            const response = await axios.post(`${apiUrl}/api/users/changeMonth`, {selectedMonth});
+        }
+        catch (e) {
+            console.log("Error", e)
+        }
+        setSelectedMonth("");
         closePopup();
     };
 
@@ -57,6 +77,48 @@ function Settings() {
         closePopup();
     };
 
+    // --------------------------------------------- Upload File -----------------------------
+    const handleUpload = async () => {
+        if (!selectedFile) {
+            alert("Please select an Excel file first!");
+            return;
+        }
+
+        try {
+            // ✅ Read Excel file as binary
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: "array"});
+
+                // ✅ Get the first sheet
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+                console.log("Excel Data:", jsonData);
+
+                // ✅ Send data to backend
+                const response = await axios.post(`${apiUrl}/api/users/uploadCustomers`, {data: jsonData});
+
+                // alert("File uploaded successfully!");
+                if (response.status === 200) {
+                    alert("File uploaded successfully!");
+                }
+                closePopup();
+                setSelectedFile(null);
+            };
+            reader.readAsArrayBuffer(selectedFile);
+        } catch (error) {
+            if (error.status === 400) {
+                alert(`${error.response.data.message}`);
+                return;
+            }
+            console.error("Error uploading file:", error);
+            alert("Error uploading file. Please try again.");
+        }
+    };
+
+    //  ---------------------------------------------   -----------------------------
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800 p-8 transition-colors">
             <div className="max-w-5xl mx-auto">
@@ -112,9 +174,12 @@ function Settings() {
                         onChange={(e) => setSelectedMonth(e.target.value)}
                     >
                         <option value="">-- Select Month --</option>
-                        {months.map((m) => (
-                            <option key={m}>{m}</option>
-                        ))}
+                        {yearmonths &&
+                            yearmonths.map((m) => (
+                                <option key={m._id} value={m.month}>
+                                    {m.month === currentMonth ? `${m.month} (Current)` : m.month}
+                                </option>
+                            ))}
                     </select>
                     <div className="flex justify-end gap-2">
                         <button
@@ -138,10 +203,15 @@ function Settings() {
                 <Popup title="Upload File">
                     <input
                         type="file"
+                        accept=".xls, .xlsx, .csv"
+                        onChange={(e) => setSelectedFile(e.target.files[0])}
                         className="w-full p-3 border rounded-lg mb-5 bg-gray-50"
                     />
+
                     <div className="flex justify-end gap-2">
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                            onClick={handleUpload}
+                        >
                             Upload
                         </button>
                         <button
@@ -163,8 +233,10 @@ function Settings() {
                         onChange={(e) => setSelectedMonth(e.target.value)}
                     >
                         <option value="">-- Select Month --</option>
-                        {months.map((m) => (
-                            <option key={m}>{m}</option>
+                        {yearmonths.map((m) => (
+                            <option key={m._id} value={m.month}>
+                                {m.month === currentMonth ? `${m.month} (Current)` : m.month}
+                            </option>
                         ))}
                     </select>
                     <p className="mb-5 text-gray-700 dark:text-gray-300">
