@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
-import {X, Upload, Trash2, Calendar, FileDown} from "lucide-react";
+import {X, Upload, Trash2, Calendar, FileDown, Newspaper, SwatchBook} from "lucide-react";
 import * as XLSX from "xlsx";
+import AddCustomerPopup from "../components/AddCustomer.jsx";
 
 function Settings() {
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -147,11 +148,18 @@ function Settings() {
                             action: "downloadReport",
                         },
                         {
+                            title: "Add Customer",
+                            color: "bg-pink-600 hover:bg-red-700",
+                            icon: <SwatchBook className="mr-2" size={18} />,
+                            action: "Add Customer",
+                        },
+                        {
                             title: "Delete Data",
                             color: "bg-red-600 hover:bg-red-700",
                             icon: <Trash2 className="mr-2" size={18} />,
                             action: "deleteData",
                         },
+
                     ].map((btn) => (
                         <button
                             key={btn.title}
@@ -268,8 +276,8 @@ function Settings() {
                         onChange={(e) => setSelectedMonth(e.target.value)}
                     >
                         <option value="">-- Select Month --</option>
-                        {months.map((m) => (
-                            <option key={m}>{m}</option>
+                        {yearmonths.map((m) => (
+                            <option key={m.motn}>{m.month}</option>
                         ))}
                     </select>
                     <p className="mb-5 text-red-600 font-medium">
@@ -292,6 +300,14 @@ function Settings() {
                     </div>
                 </Popup>
             )}
+
+            {openPopup === "Add Customer" && (
+                <Popup title="Add New Customer">
+                    <AddCustomerPopup onClose={closePopup} />
+                </Popup>
+            )
+            }
+
         </div>
     );
 }
