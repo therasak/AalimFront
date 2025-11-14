@@ -22,14 +22,12 @@ function AddCustomerPopup({isOpen, onClose, onSubmit}) {
     };
 
     const submitSaveCustomer = async () => {
-        // console.log("Data", formData);
         if (!formData.customerName || !formData.cardNumber || !formData.boxNumber || !formData.company) {
             alert("Please fill in all required fields.");
             return;
         }
         try {
             const response = await axios.post(`${apiUrl}/api/users/Addcustomer`, formData);
-            // console.log("Customer added:", response.data);
             if (response.status === 200) {
                 alert("Customer added successfully!");
                 onClose(); // Close popup after success
@@ -38,23 +36,12 @@ function AddCustomerPopup({isOpen, onClose, onSubmit}) {
             console.error("Error adding customer:", err);
             if (err.status === 400) {
                 alert(err.response.data.message);
-            } else {
-                alert("Something went wrong. Please try again.");
             }
         }
     };
 
-
-    // if (!isOpen) return null;
-
     return (
-        // <div className="fixed inset-0 flex justify-center items-center bg-black/40 backdrop-blur-md z-50 p-4">
-        //     <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-lg animate-fadeIn">
         <>
-            {/* <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-6 text-center">
-                Add New Customer
-            </h2> */}
-
             <form className="grid gap-5">
                 {/* Customer Name */}
                 <div>
@@ -171,7 +158,6 @@ function AddCustomerPopup({isOpen, onClose, onSubmit}) {
                 </div>
             </form>
         </>
-        // </div>
     );
 
 }

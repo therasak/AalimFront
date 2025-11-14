@@ -27,6 +27,11 @@ function SideBar({onOff, isOpen}) {
       icon: faUserGear
     },
     {
+      name: 'Edit Customer',
+      path: '/main/editCustomer',
+      icon: faRightFromBracket
+    },
+    {
       name: 'Logout',
       path: '/',
       icon: faRightFromBracket
