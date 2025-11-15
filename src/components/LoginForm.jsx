@@ -4,7 +4,7 @@ import {Navigate, useLocation} from 'react-router-dom';
 import {useNavigate} from 'react-router-dom';
 import {useAuth} from '../hooks/useAuth'
 import axios from 'axios';
-import {Key} from 'lucide-react';
+import {Key, Eye, EyeOff} from 'lucide-react';
 const LoginForm = () => {
   const navigate = useNavigate()
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -13,6 +13,7 @@ const LoginForm = () => {
 
   const [userid, setUserid] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -31,7 +32,7 @@ const LoginForm = () => {
       }
     }
     catch (e) {
-      console.log("error",e.response)
+      console.log("error", e.response)
       if (e.status == 404) {
         setError("User not found")
         setLoading(false)
@@ -87,18 +88,30 @@ const LoginForm = () => {
 
         <div className='flex flex-col'>
           <label className='text-blue-400 text-sm mb-1'>Password</label>
-          <input
-            type="password"
-            placeholder='********'
-            required
-            className='
-            w-full h-10 px-3 rounded-md bg-gray-800 text-white 
-            border border-blue-600 focus:border-blue-400 
-            focus:ring-1 focus:ring-blue-400 outline-none 
-            transition-all duration-300
-          '
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder='********'
+              required
+              value={password}
+              className='
+                w-full h-10 pr-10 px-3 rounded-md bg-gray-800 text-white 
+                border border-blue-600 focus:border-blue-400 
+                focus:ring-1 focus:ring-blue-400 outline-none 
+                transition-all duration-300
+              '
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <button
+              type="button"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              onClick={() => setShowPassword(prev => !prev)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-300 hover:text-white"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
       </div>
 
