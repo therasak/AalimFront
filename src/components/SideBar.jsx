@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
   faHome, faUser, faUserGear,
@@ -9,6 +9,8 @@ import {
 import {NavLink} from 'react-router-dom';
 import User from '../assets/user2.png'
 function SideBar({onOff, isOpen}) {
+  const [userName, setUserName] = useState(localStorage.getItem("User"))
+
 
   const navItems = [
     {
@@ -52,7 +54,7 @@ function SideBar({onOff, isOpen}) {
       <div className='flex flex-col justify-center items-center mt-10'>
         <img src={User} alt="User" className='w-20 h-20 rounded-full border-2 border-blue-400 shadow-lg' />
         <span className='text-xl font-semibold text-white mt-2 tracking-wide'>
-          Abdul Rasak
+          {userName}
         </span>
         {/* <p className='text-gray-300 text-sm'>M.C.A - Computer Application</p> */}
       </div>

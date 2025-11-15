@@ -28,13 +28,13 @@ function AddCustomerPopup({isOpen, onClose, onSubmit}) {
         }
         try {
             const response = await axios.post(`${apiUrl}/api/users/Addcustomer`, formData);
-            if (response.status === 200) {
+            if (response.status == 200) {
                 alert("Customer added successfully!");
                 onClose(); // Close popup after success
             }
         } catch (err) {
             console.error("Error adding customer:", err);
-            if (err.status === 400) {
+            if (err.status == 400) {
                 alert(err.response.data.message);
             }
         }
@@ -134,9 +134,8 @@ function AddCustomerPopup({isOpen, onClose, onSubmit}) {
                         required
                     >
                         <option value="">Select a Company</option>
-                        <option value="Company A">Company A</option>
-                        <option value="Company B">Company B</option>
-                        <option value="Company C">Company C</option>
+                        <option value="SVC">SVC</option>
+                        <option value="U Digital">Star Cable</option>
                     </select>
                 </div>
 

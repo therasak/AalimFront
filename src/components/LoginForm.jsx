@@ -3,18 +3,50 @@ import {useState} from 'react';
 import {Navigate, useLocation} from 'react-router-dom';
 import {useNavigate} from 'react-router-dom';
 import {useAuth} from '../hooks/useAuth'
+import axios from 'axios';
+import {Key} from 'lucide-react';
 const LoginForm = () => {
   const navigate = useNavigate()
+  const apiUrl = import.meta.env.VITE_API_URL;
+
 
 
   const [userid, setUserid] = useState('');
   const [password, setPassword] = useState('');
 
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
 
-  const {loading, error, login} = useAuth()
-  const handlesubmit = () => {
 
-    navigate('/main/home')
+  const handlesubmit = async () => {
+
+    // console.log(userid, password)
+    try {
+      setLoading(true)
+      const response = await axios.post(`${apiUrl}/api/users/login`, {userid, password})
+      if (response.status == 200) {
+        navigate('/main/home')
+        localStorage.setItem("User", JSON.stringify(response.data.user.name));
+
+      }
+    }
+    catch (e) {
+      console.log("error",e.response)
+      if (e.status == 404) {
+        setError("User not found")
+        setLoading(false)
+
+      }
+      else if (e.status == 401) {
+        setError("Incorrect password")
+        setLoading(false)
+
+
+      }
+    }
+    setLoading(false)
+
+
   }
   return (
     <div className="
@@ -26,19 +58,22 @@ const LoginForm = () => {
   ">
       {/* Title */}
       <span className='text-3xl font-semibold tracking-wide'>
-        Welcome Back 👋
+        Thendral Cable
       </span>
       <span className='text-gray-300 text-sm text-center'>
         Please enter your credentials to access the platform
       </span>
 
+      {error && (
+        <p className="text-red-500 font-medium text-sm">{error}</p>
+      )}
       {/* Inputs */}
       <div className='flex flex-col w-full gap-5 mt-3'>
         <div className='flex flex-col'>
           <label className='text-blue-400 text-sm mb-1'>Username</label>
           <input
             type="text"
-            placeholder='Erasak123'
+            placeholder='Ex - user123'
             required
             className='
             w-full h-10 px-3 rounded-md bg-gray-800 text-white 
@@ -68,9 +103,7 @@ const LoginForm = () => {
       </div>
 
       {/* Error Message */}
-      {error && (
-        <p className="text-red-500 font-medium text-sm">{error}</p>
-      )}
+
 
       {/* Submit Button */}
       <button
@@ -84,7 +117,8 @@ const LoginForm = () => {
       '
         onClick={handlesubmit}
       >
-        {loading ? "Loading..." : "Sign In"}
+        {/* Login */}
+        {loading ? "Loading..." : "Login"}
       </button>
     </div>
   );

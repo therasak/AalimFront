@@ -11,6 +11,7 @@ function Settings() {
     const [yearmonths, setYearmonths] = useState();
     const [currentMonth, setCurrentMonth] = useState("");
     const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedDate, setSelectedDate] = useState("")
 
     const closePopup = () => setOpenPopup(null);
 
@@ -66,15 +67,48 @@ function Settings() {
         closePopup();
     };
 
-    const handleDownload = () => {
+    const handleDownload = async () => {
         if (!selectedMonth) return alert("Please select a month to download the report.");
-        alert(`Downloading report for ${selectedMonth}...`);
+        try {
+            const response = await axios.get(`${apiUrl}/api/users/monthlyReport`, {
+                params: {month: selectedMonth},  // pass month as an object
+                responseType: 'blob'               // important to receive binary file
+            });
+
+            if (response.status === 200) {
+                // Create a Blob from the response data
+                const url = window.URL.createObjectURL(new Blob([response.data], {
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                }));
+                // Create a link element, set its href and download attribute
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `Monthly_Report_${selectedMonth}.xlsx`);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.URL.revokeObjectURL(url);  // Clean up memory
+            }
+        } catch (err) {
+            console.error("Error downloading the report", err);
+        }
         closePopup();
     };
 
-    const handleDelete = () => {
+
+    const handleDelete = async () => {
         if (!selectedMonth) return alert("Please select a month before deleting data.");
-        alert(`Data for ${selectedMonth} deleted successfully.`);
+        console.log(selectedMonth)
+        try {
+            const response = await axios.post(`${apiUrl}/api/users/deleteData`, {selectedMonth})
+            if (response.status == 200) {
+                alert(`Data for ${selectedMonth} deleted successfully.`);
+
+            }
+        }
+        catch (e) {
+            console.log("error While delete Data", e)
+        }
         closePopup();
     };
 
@@ -119,6 +153,42 @@ function Settings() {
         }
     };
 
+
+
+    // Day report Download 
+
+    // Day report Excel download function (frontend)
+
+    const dayReportDownload = async () => {
+        try {
+            console.log(selectedDate);
+
+            // Axios GET request for Excel file response as blob
+            const response = await axios.get(`${apiUrl}/api/users/day-excel?date=${selectedDate}`, {
+                responseType: 'blob',  // Important for binary data (Excel)
+                headers: {
+                    Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                }
+            });
+
+            // No response.ok in axios; check status instead
+            if (response.status !== 200) throw new Error("Failed to download report");
+
+            // response.data is the blob in axios with responseType 'blob'
+            const blob = new Blob([response.data], {type: response.headers['content-type']});
+            const url = window.URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `DayReport-${selectedDate}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+        } catch (err) {
+            alert("Error downloading report: " + err.message);
+        }
+    };
+
     //  ---------------------------------------------   -----------------------------
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800 p-8 transition-colors">
@@ -142,10 +212,16 @@ function Settings() {
                             action: "uploadFile",
                         },
                         {
-                            title: "Download Report",
+                            title: "Monthly Report",
                             color: "bg-purple-600 hover:bg-purple-700",
                             icon: <FileDown className="mr-2" size={18} />,
-                            action: "downloadReport",
+                            action: "monthlyReport",
+                        },
+                        {
+                            title: "DayWise Report",
+                            color: "bg-purple-600 hover:bg-purple-700",
+                            icon: <FileDown className="mr-2" size={18} />,
+                            action: "dayReport",
                         },
                         {
                             title: "Add Customer",
@@ -233,7 +309,7 @@ function Settings() {
             )}
 
             {/* Download Report Popup */}
-            {openPopup === "downloadReport" && (
+            {openPopup === "monthlyReport" && (
                 <Popup title="Download Report">
                     <select
                         className="w-full p-3 border rounded-lg mb-5 focus:ring-2 focus:ring-purple-500 outline-none"
@@ -253,6 +329,36 @@ function Settings() {
                     <div className="flex justify-end gap-2">
                         <button
                             onClick={handleDownload}
+                            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                        >
+                            Download
+                        </button>
+                        <button
+                            onClick={closePopup}
+                            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </Popup>
+            )}
+
+            {/* Download Day wise  */}
+            {openPopup === "dayReport" && (
+                <Popup title="Day Report">
+                    <input type="date"
+                        name="day"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="w-full p-3 border rounded-lg mb-5 focus:ring-2 focus:ring-purple-500 outline-none"
+
+                    />
+                    <p className="mb-5 text-gray-700 dark:text-gray-300">
+                        Click below to download your monthly report.
+                    </p>
+                    <div className="flex justify-end gap-2">
+                        <button
+                            onClick={dayReportDownload}
                             className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
                         >
                             Download
@@ -309,7 +415,7 @@ function Settings() {
             }
 
 
-            
+
 
         </div>
     );
