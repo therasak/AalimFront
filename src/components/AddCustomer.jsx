@@ -134,8 +134,9 @@ function AddCustomerPopup({isOpen, onClose, onSubmit}) {
                         required
                     >
                         <option value="">Select a Company</option>
-                        <option value="SVC">SVC</option>
-                        <option value="U Digital">Star Cable</option>
+                        <option value="SCV">SCV</option>
+                        <option value="U-Digital">U-Digital</option>
+                        <option value="GTPL">GTPL</option>
                     </select>
                 </div>
 

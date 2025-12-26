@@ -314,8 +314,9 @@ function EditCustomer() {
                                     className="border p-2 rounded-lg w-full bg-white"
                                 >
                                     <option value="">Select Company</option>
-                                    <option value="SVC">SVC</option>
-                                    <option value="U Digital">Star Cable</option>
+                                    <option value="SCV">SCV</option>
+                                    <option value="U-Digital">U-Digital</option>
+                                    <option value="GTPL">GTPL</option>
                                 </select>
                             </div>
 
